@@ -1,0 +1,117 @@
+from flask import Flask, render_template_string, request, redirect, session, url_for
+
+app = Flask(__name__)
+app.secret_key = "norinim_super_secret_2026"
+
+# 🛡️ O'CHMAS OWNER AKKAUNTI (KOD ICHIDA MUHRLANGAN)
+OWNER_USER = "SuperAdmin_2026"
+OWNER_PASS = "X7_vB9!zR2@pQw99_Owner"
+
+# Ma'lumotlar (Vaqtinchalik xotira - Vercel uyquga ketguncha saqlaydi)
+db = {"users": {}}
+
+# --- YIRIK VA ZAMONAVIY DIZAYN ---
+UI_HTML = """
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Norinim Boshqaruv Tizimi</title>
+    <style>
+        :root { --primary: #007aff; --bg: #050505; --card: #121212; --text: #ffffff; }
+        body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
+        .container { background: var(--card); padding: 50px; border-radius: 40px; width: 100%; max-width: 500px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); text-align: center; border: 1px solid #222; }
+        
+        h1 { font-size: 38px; margin-bottom: 30px; letter-spacing: -1px; }
+        input { width: 100%; padding: 20px; margin: 12px 0; border-radius: 15px; border: 2px solid #222; background: #1c1c1e; color: white; font-size: 18px; box-sizing: border-box; outline: none; }
+        input:focus { border-color: var(--primary); }
+        
+        button { width: 100%; padding: 20px; margin-top: 15px; border-radius: 15px; border: none; font-size: 20px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-main { background: var(--primary); color: white; }
+        .btn-main:hover { opacity: 0.8; transform: scale(1.02); }
+        .btn-reg { background: transparent; color: #34c759; border: 2px solid #34c759; }
+        
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 30px; }
+        .menu-item { background: #1c1c1e; padding: 25px; border-radius: 20px; cursor: pointer; border: 1px solid #333; transition: 0.3s; }
+        .menu-item:hover { border-color: var(--primary); background: #252527; }
+        .icon { font-size: 35px; display: block; margin-bottom: 10px; }
+        
+        .badge { background: #ffcc00; color: black; padding: 5px 12px; border-radius: 10px; font-size: 12px; font-weight: 800; }
+        .logout { color: #888; text-decoration: none; display: block; margin-top: 30px; font-size: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% if 'user' not in session %}
+            <h1>Kirish</h1>
+            <p style="color: #888; margin-bottom: 30px;">Norinim maktab tizimiga xush kelibsiz</p>
+            <form method="POST" action="/auth">
+                <input name="u" placeholder="Foydalanuvchi nomi" required>
+                <input name="p" type="password" placeholder="Parol" required>
+                <button type="submit" name="action" value="login" class="btn-main">Tizimga kirish</button>
+                <button type="submit" name="action" value="reg" class="btn-reg">Ro'yxatdan o'tish</button>
+            </form>
+            {% if error %}<p style="color: #ff3b30; margin-top: 15px;">{{ error }}</p>{% endif %}
+        {% else %}
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="text-align:left;">
+                    <p style="margin:0; color:#888;">Foydalanuvchi:</p>
+                    <b style="font-size:20px;">{{ session.user }}</b>
+                </div>
+                <span class="badge">{{ session.role.upper() }}</span>
+            </div>
+            
+            <div class="menu-grid">
+                <div class="menu-item" onclick="alert('1-bo\\'lim')"><span class="icon">👨‍🏫</span><b>O'qituvchilar</b></div>
+                <div class="menu-item" onclick="alert('2-bo\\'lim')"><span class="icon">🎓</span><b>O'quvchilar</b></div>
+                <div class="menu-item" onclick="alert('3-bo\\'lim')"><span class="icon">🏆</span><b>Bilimdonlar</b></div>
+                <div class="menu-item" onclick="alert('4-bo\\'lim')"><span class="icon">📰</span><b>Yangiliklar</b></div>
+                <div class="menu-item" onclick="alert('5-bo\\'lim')"><span class="icon">🏢</span><b>Ma'muriyat</b></div>
+                <div class="menu-item" onclick="alert('6-bo\\'lim')"><span class="icon">📚</span><b>Kutubxona</b></div>
+            </div>
+
+            {% if session.role == 'owner' %}
+                <div style="margin-top:25px; padding:20px; border:2px dashed #ff3b30; border-radius:20px;">
+                    <p style="color:#ff3b30; font-weight:bold; margin-top:0;">⚠️ OWNER PANEL</p>
+                    <button style="background:#ff3b30; color:white; margin:0;" onclick="alert('Tizim tozalandi!')">Bazani tozalash</button>
+                </div>
+            {% endif %}
+            
+            <a href="/logout" class="logout">🚪 Tizimdan chiqish</a>
+        {% endif %}
+    </div>
+</body>
+</html>
+"""
+
+@app.route('/')
+def index():
+    error = request.args.get('error')
+    return render_template_string(UI_HTML, error=error)
+
+@app.route('/auth', methods=['POST'])
+def auth():
+    u, p = request.form.get('u'), request.form.get('p')
+    action = request.form.get('action')
+
+    if action == "reg":
+        if u == OWNER_USER: return redirect(url_for('index', error="Bu login zaxiralangan!"))
+        db["users"][u] = {"pass": p, "role": "viewer"}
+        return redirect(url_for('index', error="Ro'yxatdan o'tdingiz! Endi kiring."))
+
+    # Login tekshiruvi
+    if u == OWNER_USER and p == OWNER_PASS:
+        session['user'], session['role'] = u, "owner"
+    elif u in db["users"] and db["users"][u]["pass"] == p:
+        session['user'], session['role'] = u, db["users"][u]["role"]
+    else:
+        return redirect(url_for('index', error="Login yoki parol xato!"))
+    
+    return redirect(url_for('index'))
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('index'))
