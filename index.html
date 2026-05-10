@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Norinim - Maktab Boshqaruv Tizimi</title>
+    <style>
+        :root {
+            --bg: #0a0a0c;
+            --card-bg: #161618;
+            --accent: #007aff;
+            --success: #32d74b;
+            --danger: #ff453a;
+            --text: #ffffff;
+            --text-dim: #8e8e93;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* --- LOGIN VA SIGNUP OYNASI (YIRIK) --- */
+        .auth-container {
+            background: var(--card-bg);
+            padding: 60px 45px;
+            border-radius: 45px;
+            width: 100%;
+            max-width: 550px;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+            text-align: center;
+            border: 1px solid #2c2c2e;
+            transition: 0.5s ease;
+        }
+
+        h1 { font-size: 42px; font-weight: 800; margin-bottom: 10px; letter-spacing: -1.5px; }
+        .subtitle { color: var(--text-dim); margin-bottom: 45px; font-size: 19px; }
+
+        .form-group { margin-bottom: 25px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 12px; font-weight: 600; color: #bbb; margin-left: 10px; }
+
+        input {
+            width: 100%;
+            padding: 22px;
+            background: #252527;
+            border: 2px solid #3a3a3c;
+            border-radius: 20px;
+            color: white;
+            font-size: 19px;
+            box-sizing: border-box;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus { border-color: var(--accent); background: #2c2c2e; }
+
+        .btn {
+            width: 100%;
+            padding: 22px;
+            border-radius: 20px;
+            font-size: 21px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 15px;
+        }
+
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-primary:hover { opacity: 0.9; transform: scale(1.02); }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--success);
+            border: 2px solid var(--success);
+            margin-top: 20px;
+        }
+        .btn-outline:hover { background: var(--success); color: black; }
+
+        /* --- DASHBOARD (MENYULAR) --- */
+        .dashboard {
+            width: 95%;
+            max-width: 900px;
+            display: none;
+            padding: 20px;
+        }
+
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 30px;
+            margin-bottom: 35px;
+            border: 1px solid #2c2c2e;
+        }
+
+        .badge {
+            background: #ffd60a;
+            color: black;
+            padding: 6px 16px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 25px;
+        }
+
+        .menu-item {
+            background: var(--card-bg);
+            padding: 45px 30px;
+            border-radius: 35px;
+            text-align: center;
+            border: 1px solid #2c2c2e;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .menu-item:hover {
+            border-color: var(--accent);
+            transform: translateY(-10px);
+            background: #1c1c1e;
+        }
+
+        .menu-item .icon { font-size: 60px; margin-bottom: 20px; display: block; }
+        .menu-item b { font-size: 22px; font-weight: 700; }
+
+        .owner-control {
+            margin-top: 40px;
+            padding: 35px;
+            background: rgba(255, 69, 58, 0.1);
+            border: 2px dashed var(--danger);
+            border-radius: 35px;
+            text-align: center;
+            display: none;
+        }
+
+        .logout-btn {
+            color: var(--text-dim);
+            text-decoration: none;
+            display: block;
+            margin-top: 40px;
+            font-size: 17px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .logout-btn:hover { color: var(--danger); }
+
+        #alert-msg { margin-top: 20px; font-weight: 600; font-size: 15px; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade { animation: slideIn 0.5s ease forwards; }
+    </style>
+</head>
+<body>
+
+    <div id="auth-section" class="auth-container fade">
+        <h1>Xush kelibsiz</h1>
+        <p class="subtitle">Norinim maktab boshqaruv tizimi</p>
+        
+        <div class="form-group">
+            <label>Foydalanuvchi nomi</label>
+            <input type="text" id="user_in" placeholder="Loginni kiriting">
+        </div>
+        
+        <div class="form-group">
+            <label>Maxfiy parol</label>
+            <input type="password" id="pass_in" placeholder="••••••••">
+        </div>
+
+        <button class="btn btn-primary" onclick="login()">Tizimga kirish</button>
+        <button class="btn btn-outline" onclick="register()">Yangi akkaunt ochish</button>
+        <div id="alert-msg"></div>
+    </div>
+
+    <div id="dashboard-section" class="dashboard fade">
+        <div class="top-nav">
+            <div>
+                <p style="margin:0; color:var(--text-dim); font-size: 15px;">Xush kelibsiz,</p>
+                <h2 id="display-name" style="margin:5px 0 0 0; font-size: 28px;">Admin</h2>
+            </div>
+            <span id="display-role" class="badge">OWNER</span>
+        </div>
+
+        <div class="menu-grid">
+            <div class="menu-item" onclick="alert('O\'qituvchilar bazasi tez kunda...')">
+                <span class="icon">👨‍🏫</span> <b>O'qituvchilar</b>
+            </div>
+            <div class="menu-item" onclick="alert('O\'quvchilar ro\'yxati...')">
+                <span class="icon">🎓</span> <b>O'quvchilar</b>
+            </div>
+            <div class="menu-item" onclick="alert('Maktab bilimdonlari...')">
+                <span class="icon">🏆</span> <b>Bilimdonlar</b>
+            </div>
+            <div class="menu-item" onclick="alert('Eng so\'nggi yangiliklar...')">
+                <span class="icon">📰</span> <b>Yangiliklar</b>
+            </div>
+            <div class="menu-item" onclick="alert('Ma\'muriyat bo\'limi...')">
+                <span class="icon">🏢</span> <b>Ma'muriyat</b>
+            </div>
+            <div class="menu-item" onclick="alert('Elektron kutubxona...')">
+                <span class="icon">📚</span> <b>Kutubxona</b>
+            </div>
+        </div>
+
+        <div id="owner-panel" class="owner-control">
+            <h3 style="color:var(--danger); margin-top:0;">⚠️ SUPER ADMIN BOSHQARUVI</h3>
+            <p style="color:#aaa;">Tizimdagi barcha oddiy foydalanuvchilarni o'chirib yuborish.</p>
+            <button class="btn" style="background:var(--danger); color:white; margin:0; padding:15px;" onclick="resetSystem()">Bazani tozalash</button>
+        </div>
+
+        <span class="logout-btn" onclick="logout()">🚪 Tizimdan chiqish (Logout)</span>
+    </div>
+
+    <script>
+        // 🛡️ O'CHMAS OWNER AKKAUNTI (HARDCODED)
+        const OWNER_DATA = {
+            username: "SuperAdmin_2026",
+            password: "X7_vB9!zR2@pQw99_Owner"
+        };
+
+        // LocalStorage orqali bazani yuklash
+        let usersDB = JSON.parse(localStorage.getItem('norinim_system_v1')) || {};
+
+        function register() {
+            const u = document.getElementById('user_in').value.trim();
+            const p = document.getElementById('pass_in').value.trim();
+
+            if (u === OWNER_DATA.username) return notify("Bu login zaxiralangan!", "var(--danger)");
+            if (u.length < 3 || p.length < 5) return notify("Login (3) yoki parol (5) juda qisqa!", "orange");
+            if (usersDB[u]) return notify("Foydalanuvchi allaqachon bor!", "orange");
+
+            usersDB[u] = { pass: p, role: "viewer" };
+            localStorage.setItem('norinim_system_v1', JSON.stringify(usersDB));
+            notify("Muvaffaqiyatli! Endi Kirishni bosing.", "var(--success)");
+        }
+
+        function login() {
+            const u = document.getElementById('user_in').value.trim();
+            const p = document.getElementById('pass_in').value.trim();
+
+            if (u === OWNER_DATA.username && p === OWNER_DATA.password) {
+                sessionStart(u, "owner");
+            } else if (usersDB[u] && usersDB[u].pass === p) {
+                sessionStart(u, "viewer");
+            } else {
+                notify("Login yoki parol noto'g'ri!", "var(--danger)");
+            }
+        }
+
+        function sessionStart(u, r) {
+            sessionStorage.setItem('active_u', u);
+            sessionStorage.setItem('active_r', r);
+            showDashboard(u, r);
+        }
+
+        function showDashboard(u, r) {
+            document.getElementById('auth-section').style.display = 'none';
+            document.getElementById('dashboard-section').style.display = 'block';
+            document.getElementById('display-name').innerText = u;
+            document.getElementById('display-role').innerText = r;
+            if (r === 'owner') document.getElementById('owner-panel').style.display = 'block';
+        }
+
+        function notify(msg, color) {
+            const m = document.getElementById('alert-msg');
+            m.innerText = msg;
+            m.style.color = color;
+            setTimeout(() => m.innerText = "", 4000);
+        }
+
+        function logout() {
+            sessionStorage.clear();
+            location.reload();
+        }
+
+        function resetSystem() {
+            if (confirm("DIQQAT! Barcha oddiy foydalanuvchilar o'chiriladi. Rozimisiz?")) {
+                localStorage.removeItem('norinim_system_v1');
+                alert("Baza muvaffaqiyatli tozalandi!");
+                location.reload();
+            }
+        }
+
+        // Sahifa yangilanganda avtomatik kirish
+        window.onload = () => {
+            const u = sessionStorage.getItem('active_u');
+            const r = sessionStorage.getItem('active_r');
+            if (u) showDashboard(u, r);
+        }
+    </script>
+</body>
+</html>
